@@ -7,6 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{022BD550
 	ProjectSection(SolutionItems) = preProject
 		build.cake = build.cake
 		build.ps1 = build.ps1
+		Settings.StyleCop = Settings.StyleCop
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{0D0B601B-DDCB-4D59-89A9-18BBFC508205}"

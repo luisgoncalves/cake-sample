@@ -14,7 +14,7 @@ namespace Cake.Sample.Web.Controllers
 
         public ActionResult Index()
         {
-            return View((object)this.super.DoSuperStuff());
+            return this.View((object)this.super.DoSuperStuff());
         }
     }
 }

@@ -1,3 +1,4 @@
+#addin "Cake.StyleCop"
 #tool "xunit.runner.console"
 
 using Cake.Core.Diagnostics;
@@ -35,7 +36,11 @@ Task("Build")
 	.IsDependentOn("Restore-Packages")
     .Does(() =>
 	{
-        DotNetBuild(solutionFile, settings => settings
+		Information("Running StyleCop analysis");
+        StyleCopAnalyse(solutionFile, File("./Settings.StyleCop"));
+		
+		Information("Running MSBuild");
+		DotNetBuild(solutionFile, settings => settings
 			.SetConfiguration(configuration)
 			.WithTarget("Rebuild")
 			.SetVerbosity(Verbosity.Minimal));
