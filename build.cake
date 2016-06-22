@@ -84,13 +84,17 @@ Task("Publish-Websites")
 		{
 			Information("Publishing {0}", project.Name);
 			
+			var publishDir = distDir + Directory("web") + Directory(project.Name);
+
 			DotNetBuild(project.Path, settings => settings
 				.SetConfiguration(configuration)
 				.WithProperty("DeployOnBuild", "true")
 				.WithProperty("WebPublishMethod", "FileSystem")
 				.WithProperty("DeployTarget", "WebPublish")
-				.WithProperty("publishUrl", MakeAbsolute(distDir + Directory("web") + Directory(project.Name)).FullPath)
+				.WithProperty("publishUrl", MakeAbsolute(publishDir).FullPath)
 				.SetVerbosity(Verbosity.Minimal));
+
+			Zip(publishDir, distDir + File(project.Name + ".zip"));
 		}
 	});
 	
