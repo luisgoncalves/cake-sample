@@ -1,4 +1,4 @@
-#addin "Cake.StyleCop"
+#addin nuget:?package=Cake.StyleCop&version=1.1.0
 #tool "xunit.runner.console"
 
 using Cake.Core.Diagnostics;
@@ -37,7 +37,9 @@ Task("Build")
     .Does(() =>
 	{
 		Information("Running StyleCop analysis");
-        StyleCopAnalyse(solutionFile, File("./Settings.StyleCop"));
+        StyleCopAnalyse(settings => settings
+			.WithSolution(solutionFile)
+			.WithSettings(File("./Settings.StyleCop")));
 		
 		Information("Running MSBuild");
 		DotNetBuild(solutionFile, settings => settings
