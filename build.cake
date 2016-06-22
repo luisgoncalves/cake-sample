@@ -52,7 +52,10 @@ Task("Test")
 	.IsDependentOn("Build")
     .Does(() =>
 	{
-		XUnit2("./test/**/bin/**/*.Tests.dll");
+		XUnit2("./test/**/bin/**/*.Tests.dll", new XUnit2Settings {
+			XmlReport = true,
+			OutputDirectory = "."
+		});
     });
 	
 Task("Create-Packages")
