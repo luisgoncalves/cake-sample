@@ -37,7 +37,14 @@ Task("Build")
 	.IsDependentOn("Restore-Packages")
     .Does(() =>
 	{
-		CreateDirectory(buildDir);
+		if (DirectoryExists(buildDir))
+		{
+			CleanDirectory(buildDir);
+		}
+		else
+		{
+			CreateDirectory(buildDir);
+		}
 
 		Information("Running StyleCop analysis");
         StyleCopAnalyse(settings => settings
