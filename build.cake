@@ -9,6 +9,7 @@ var configuration = Argument("configuration", "Release");
 
 var solutionFile = GetFiles("./*.sln").First();
 var distDir = Directory("./dist");
+var buildDir = Directory("./build");
 
 Task("Clean")
 	.IsDependentOn("Clean-Dist")	
@@ -36,10 +37,13 @@ Task("Build")
 	.IsDependentOn("Restore-Packages")
     .Does(() =>
 	{
+		CreateDirectory(buildDir);
+
 		Information("Running StyleCop analysis");
         StyleCopAnalyse(settings => settings
 			.WithSolution(solutionFile)
-			.WithSettings(File("./Settings.StyleCop")));
+			.WithSettings(File("./Settings.StyleCop"))
+			.ToResultFile(buildDir + File("StyleCopViolations.xml")));
 		
 		Information("Running MSBuild");
 		DotNetBuild(solutionFile, settings => settings
@@ -54,7 +58,7 @@ Task("Test")
 	{
 		XUnit2("./test/**/bin/**/*.Tests.dll", new XUnit2Settings {
 			XmlReport = true,
-			OutputDirectory = "."
+			OutputDirectory = buildDir
 		});
     });
 	

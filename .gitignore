@@ -237,6 +237,7 @@ _Pvt_Extensions
 
 # Cake
 dist/
+build/
 tools/
 
 # StyleCop
