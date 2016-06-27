@@ -1,4 +1,4 @@
-#addin nuget:?package=Cake.StyleCop&version=1.1.0
+#addin "nuget:?package=Cake.StyleCop&version=1.1.0"
 #tool "xunit.runner.console"
 
 using Cake.Core.Diagnostics;
