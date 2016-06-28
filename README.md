@@ -10,6 +10,12 @@ The sample solution includes the following projects:
 
 The build script illustrates common tasks, such as running xUnit tests, creating a NuGet package and publishing a web application to a local folder.
 
+## Requirements
+
+1. MS Build Tools (tested with v14)
+1. .NET Target Pack 4.6.1
+1. Powershell
+
 ## How to run the sample
 
 1. Clone the repo.
@@ -18,4 +24,3 @@ The build script illustrates common tasks, such as running xUnit tests, creating
 4. Check the outputs on the `dist` folder.
 
 The default target creates the NuGet package and publishes the web application. There's also a target to remove the build outputs. Just run  `.\build.ps1 -Target Clean`.
-
