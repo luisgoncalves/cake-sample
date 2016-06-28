@@ -12,7 +12,8 @@ var distDir = Directory("./dist");
 var buildDir = Directory("./build");
 
 Task("Clean")
-	.IsDependentOn("Clean-Dist")	
+	.IsDependentOn("Clean-Build")
+	.IsDependentOn("Clean-Dist")
 	.Does(() => 
 	{
 		DotNetBuild(solutionFile, settings => settings
@@ -27,15 +28,8 @@ Task("Clean-Dist")
 		CleanDirectory(distDir);
 	});
 
-Task("Restore-Packages")
+Task("Clean-Build")
 	.Does(() => 
-	{
-		NuGetRestore(solutionFile);
-	});
-
-Task("Build")
-	.IsDependentOn("Restore-Packages")
-    .Does(() =>
 	{
 		if (DirectoryExists(buildDir))
 		{
@@ -45,7 +39,19 @@ Task("Build")
 		{
 			CreateDirectory(buildDir);
 		}
+	});
 
+Task("Restore-Packages")
+	.Does(() => 
+	{
+		NuGetRestore(solutionFile);
+	});
+
+Task("Build")
+	.IsDependentOn("Restore-Packages")
+	.IsDependentOn("Clean-Build")
+    .Does(() =>
+	{
 		Information("Running StyleCop analysis");
         StyleCopAnalyse(settings => settings
 			.WithSolution(solutionFile)
