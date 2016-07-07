@@ -1,19 +1,17 @@
 #addin "nuget:?package=Cake.StyleCop&version=1.1.0"
+#addin "Cake.XdtTransform"
 #tool "xunit.runner.console"
-
-using Cake.Core.Diagnostics;
-using System.Linq;
 
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
 
 var solutionFile = GetFiles("./*.sln").First();
+var solution = new Lazy<SolutionParserResult>(() => ParseSolution(solutionFile));
 var distDir = Directory("./dist");
 var buildDir = Directory("./build");
 
 Task("Clean")
-	.IsDependentOn("Clean-Build")
-	.IsDependentOn("Clean-Dist")
+	.IsDependentOn("Clean-Outputs")
 	.Does(() => 
 	{
 		DotNetBuild(solutionFile, settings => settings
@@ -22,13 +20,7 @@ Task("Clean")
 			.SetVerbosity(Verbosity.Minimal));
 	});
 
-Task("Clean-Dist")
-	.Does(() => 
-	{
-		CleanDirectory(distDir);
-	});
-
-Task("Clean-Build")
+Task("Clean-Outputs")
 	.Does(() => 
 	{
 		if (DirectoryExists(buildDir))
@@ -39,26 +31,33 @@ Task("Clean-Build")
 		{
 			CreateDirectory(buildDir);
 		}
+
+		if (DirectoryExists(distDir))
+		{
+			CleanDirectory(distDir);
+		}
+		else
+		{
+			CreateDirectory(distDir);
+		}
 	});
 
-Task("Restore-Packages")
+Task("StyleCop")
 	.Does(() => 
 	{
-		NuGetRestore(solutionFile);
-	});
-
-Task("Build")
-	.IsDependentOn("Restore-Packages")
-	.IsDependentOn("Clean-Build")
-    .Does(() =>
-	{
-		Information("Running StyleCop analysis");
         StyleCopAnalyse(settings => settings
 			.WithSolution(solutionFile)
 			.WithSettings(File("./Settings.StyleCop"))
 			.ToResultFile(buildDir + File("StyleCopViolations.xml")));
-		
-		Information("Running MSBuild");
+	});
+
+Task("Build")
+	.IsDependentOn("Clean-Outputs")
+	.IsDependentOn("StyleCop")	
+    .Does(() =>
+	{
+		NuGetRestore(solutionFile);
+
 		DotNetBuild(solutionFile, settings => settings
 			.SetConfiguration(configuration)
 			.WithTarget("Rebuild")
@@ -75,18 +74,18 @@ Task("Test")
 		});
     });
 	
-Task("Create-Packages")
+Task("Packages")
 	.IsDependentOn("Test")
-	.IsDependentOn("Clean-Dist")
 	.Does(() =>
 	{
-		var packagesOutputDir = distDir + Directory("packages");
-		CreateDirectory(packagesOutputDir);
+		var projectFilesToPack = solution.Value
+			.Projects
+			.Where(p => FileExists(p.Path.ChangeExtension(".nuspec")))
+			.Select(p => p.Path);
 		
-		var projectFilesToPack = GetFiles("./src/**/*.nuspec").Select(f => f.ChangeExtension(".csproj"));
 		NuGetPack(projectFilesToPack, new NuGetPackSettings
 		{
-			OutputDirectory = packagesOutputDir,
+			OutputDirectory = distDir,
 			Properties = new Dictionary<string, string> 
 			{
 				{ "Configuration", configuration }
@@ -94,17 +93,19 @@ Task("Create-Packages")
 		});
 	});
 
-Task("Publish-Websites")
+Task("Websites")
 	.IsDependentOn("Test")
-	.IsDependentOn("Clean-Dist")
 	.Does(() =>
 	{
-		var projects = ParseSolution(solutionFile).Projects.Where(p => p.Name.EndsWith(".Web"));
-		foreach(var project in projects)
+		var webProjects = solution.Value
+			.Projects
+			.Where(p => p.Name.EndsWith(".Web"));
+
+		foreach(var project in webProjects)
 		{
 			Information("Publishing {0}", project.Name);
 			
-			var publishDir = distDir + Directory("web") + Directory(project.Name);
+			var publishDir = distDir + Directory(project.Name);
 
 			DotNetBuild(project.Path, settings => settings
 				.SetConfiguration(configuration)
@@ -117,9 +118,39 @@ Task("Publish-Websites")
 			Zip(publishDir, distDir + File(project.Name + ".zip"));
 		}
 	});
+
+Task("Consoles")
+	.IsDependentOn("Test")
+	.Does(() =>
+	{
+		var consoleProjects = solution.Value
+			.Projects
+			.Where(p => p.Name.EndsWith(".Console"));
+
+		foreach(var project in consoleProjects)
+		{
+			Information("Publishing {0}", project.Name);
+
+			var projectDir = project.Path.GetDirectory(); 
+			var publishDir = distDir + Directory(project.Name);
+
+			Information("Copying to output directory");
+			CopyDirectory(
+				projectDir.Combine("bin").Combine(configuration),
+				publishDir);
+
+			var configFile = publishDir + File(project.Name + ".exe.config");
+			var transformFile = projectDir.CombineWithFilePath("App." + configuration + ".config");
+			Information("Transforming configuration file");
+			XdtTransformConfig(configFile, transformFile, configFile);
+
+			Zip(publishDir, distDir + File(project.Name + ".zip"));
+		}
+	});
 	
 Task("Default")
-	.IsDependentOn("Create-Packages")
-	.IsDependentOn("Publish-Websites");
+	.IsDependentOn("Packages")
+	.IsDependentOn("Websites")
+	.IsDependentOn("Consoles");
 
 RunTarget(target);
