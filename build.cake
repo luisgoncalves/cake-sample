@@ -69,7 +69,7 @@ Task("Test")
 	.IsDependentOn("Build")
     .Does(() =>
 	{
-		XUnit2("./test/**/bin/**/*.Tests.dll", new XUnit2Settings {
+		XUnit2(string.Format("./test/**/bin/{0}/*.Tests.dll", configuration), new XUnit2Settings {
 			XmlReport = true,
 			OutputDirectory = buildDir
 		});
