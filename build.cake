@@ -1,5 +1,6 @@
 #addin "nuget:?package=Cake.StyleCop&version=1.1.0"
 #addin "Cake.XdtTransform"
+#addin "Cake.SemVer"
 #tool "xunit.runner.console"
 
 var target = Argument("target", "Default");
@@ -76,6 +77,7 @@ Task("Test")
 	
 Task("Packages")
 	.IsDependentOn("Test")
+	.WithCriteria(() => Jenkins.IsRunningOnJenkins)
 	.Does(() =>
 	{
 		var projectFilesToPack = solution.Value
@@ -83,14 +85,23 @@ Task("Packages")
 			.Where(p => FileExists(p.Path.ChangeExtension(".nuspec")))
 			.Select(p => p.Path);
 		
-		NuGetPack(projectFilesToPack, new NuGetPackSettings
+		foreach(var project in projectFilesToPack)
 		{
-			OutputDirectory = distDir,
-			Properties = new Dictionary<string, string> 
+			var assemblyInfo = ParseAssemblyInfo(project.GetDirectory().CombineWithFilePath("./Properties/AssemblyInfo.cs"));
+			var assemblyVersion = ParseSemVer(assemblyInfo.AssemblyVersion); 
+			var packageVersion = assemblyVersion.Change(prerelease: Jenkins.Environment.Repository.GitBranch + Jenkins.Environment.Build.BuildNumber);
+
+			NuGetPack(project, new NuGetPackSettings
 			{
-				{ "Configuration", configuration }
-			}
-		});
+				OutputDirectory = distDir,
+				Properties = new Dictionary<string, string> 
+				{
+					{ "Configuration", configuration }
+				},
+				Authors = new []{ "John Doe" },
+				Version = packageVersion.ToString(),
+			});
+		}
 	});
 
 Task("Websites")
