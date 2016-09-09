@@ -89,7 +89,7 @@ Task("Packages")
 		{
 			var assemblyInfo = ParseAssemblyInfo(project.GetDirectory().CombineWithFilePath("./Properties/AssemblyInfo.cs"));
 			var assemblyVersion = ParseSemVer(assemblyInfo.AssemblyVersion); 
-			var packageVersion = assemblyVersion.Change(prerelease: Jenkins.Environment.Repository.GitBranch + Jenkins.Environment.Build.BuildNumber);
+			var packageVersion = assemblyVersion.Change(prerelease: "pre" + Jenkins.Environment.Build.BuildNumber);
 
 			NuGetPack(project, new NuGetPackSettings
 			{
