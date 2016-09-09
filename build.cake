@@ -24,23 +24,8 @@ Task("Clean")
 Task("Clean-Outputs")
 	.Does(() => 
 	{
-		if (DirectoryExists(buildDir))
-		{
-			CleanDirectory(buildDir);
-		}
-		else
-		{
-			CreateDirectory(buildDir);
-		}
-
-		if (DirectoryExists(distDir))
-		{
-			CleanDirectory(distDir);
-		}
-		else
-		{
-			CreateDirectory(distDir);
-		}
+		CleanDirectory(buildDir);
+		CleanDirectory(distDir);
 	});
 
 Task("StyleCop")
