@@ -3,18 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{022BD550-7869-4B5A-95FF-CEB40A96E29E}"
-	ProjectSection(SolutionItems) = preProject
-		build.cake = build.cake
-		build.ps1 = build.ps1
-		build.sh = build.sh
-		Settings.StyleCop = Settings.StyleCop
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{0D0B601B-DDCB-4D59-89A9-18BBFC508205}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{D45D5736-919A-4768-B3A5-7C30CC834E4F}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cake.Sample.Lib", "src\Cake.Sample.Lib\Cake.Sample.Lib.csproj", "{6D23C43C-3DC0-4DC0-A8F7-7DEBB5B45C38}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cake.Sample.Web", "src\Cake.Sample.Web\Cake.Sample.Web.csproj", "{17B0C2C9-4474-44AF-B2FC-27D99496C226}"
@@ -48,11 +36,5 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{6D23C43C-3DC0-4DC0-A8F7-7DEBB5B45C38} = {0D0B601B-DDCB-4D59-89A9-18BBFC508205}
-		{17B0C2C9-4474-44AF-B2FC-27D99496C226} = {0D0B601B-DDCB-4D59-89A9-18BBFC508205}
-		{3F6EC431-07E4-4F1C-B6C5-8A7A3EAE1CEA} = {D45D5736-919A-4768-B3A5-7C30CC834E4F}
-		{8C43CA1F-BBBE-47B3-9230-0FB961CBCCE5} = {0D0B601B-DDCB-4D59-89A9-18BBFC508205}
 	EndGlobalSection
 EndGlobal
